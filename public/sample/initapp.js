@@ -1,6 +1,6 @@
 Ext.Loader.setConfig({enabled: true});
 Ext.Loader.setPath('Ext.testing.components', '/sample/components');
-Ext.Loader.setPath('Ext.tualo.PivotGrid', '/tualo/PivotGrid');
+Ext.Loader.setPath('Ext.tualo', '/tualo');
 
 
 Ext.application({
