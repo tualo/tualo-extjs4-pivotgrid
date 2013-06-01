@@ -8,7 +8,7 @@ Ext.define('Ext.tualo.PivotGrid', {
 		return this._store;
 	},
 	constructor: function(config) {
-		this._store = config.store;
+		this._store = config.store; 
 		this._columns = config.columns;
 		this.callParent([config]);
 	},
@@ -25,6 +25,7 @@ Ext.define('Ext.tualo.PivotGrid', {
 			data: []
 		});
 		
+		// create the grid with an dummy Store
 		this.grid = Ext.create('Ext.grid.Panel',{
 			region: 'center',
 			store: this.store,
@@ -92,7 +93,7 @@ Ext.define('Ext.tualo.PivotGrid', {
 									ptype: 'gridviewdragdrop',
 									dragGroup: this.xid+'-Columns',
 									dropGroup: this.xid+'-Columns'
-								},
+								}, 
 								listeners: {
 									scope: this,
 									drop: function(node, data, dropRec, dropPosition) {
