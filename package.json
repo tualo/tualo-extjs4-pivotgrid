@@ -1,0 +1,23 @@
+{
+	"name": "tualo-extjs4-pivotgrid",
+	"description": "WebMail-App written in JavaScript ",
+	"homepage": "http://www.tualo.de",
+	"main": "app.js",
+	"version": "0.0.1",
+	"engines": {
+		"node": ">=0.8.0"
+	},
+	"maintainers": [
+	{
+		"name": "Thomas Hoffmann",
+		"email": "thomas.hoffmann@tualo.de",
+		"url": "http://tualo.de/"
+	}
+	],
+	"readmeFilename": "README.md",
+	"license": "GPL/V3",
+	"dependencies": {
+		"express": ">=3.1.1",
+		"jade": ">=0.28.2"
+	}
+}
