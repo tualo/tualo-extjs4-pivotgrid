@@ -104,6 +104,7 @@ Date;Town;Articlegroup;CustomerName;CustomerNo;Article;UnitPrice;Quantity;Amount
 2013-08-16;London;Hardware;HAL Inc.;10002;PC Mouse USB;9,99;1;9,99;2;3
 2010-09-11;Rom;Hardware;Taders Ldt.;10008;Tablet PC No. 1;499;1;499;3;9
 2011-03-16;Tokio;Shipping;Dr. Foo;10003;Shipping Express;11,99;1;11,99;10;4
+2011-03-16;Tokio;Shipping;Dr. Hoo;10003;Shipping Express;15,99;1;15,99;10;4
 2011-07-12;London;Hardware;HAL Inc.;10002;Tablet PC No. 1;499;1;499;3;3
 2010-09-23;Paris;Hardware;Webstores Co.;10007;Tablet PC No. 1;499;1;499;3;8
 2010-02-22;Kairo;Hardware;Inter Trade Inc.;10006;Server CPU 16 Cores;649;1;649;4;7
