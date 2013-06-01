@@ -9,7 +9,7 @@ var path = require('path');
 
 var startUI = function(req, res, next) {
 	res.render('layout',{
-		title: 'tualo webmail'
+		title: 'tualo testing environment'
 	});
 }
 
