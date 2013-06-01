@@ -56,8 +56,16 @@ Ext.define('Ext.testing.components.Main', {
 					{text:'Quantity',dataIndex:'Quantity',type:'number',align:'right',renderer: Ext.util.Format.numberRenderer('0.000,00/i') },
 					{text:'Amount',dataIndex:'Amount',type:'number',align:'right',renderer: Ext.util.Format.numberRenderer('0.000,00/i') }
 					
+				],
+				topAxis: [
+					{dataIndex: 'Articlegroup'}
+				],
+				leftAxis: [
+					{dataIndex: 'Town'}
+				],
+				values: [
+					{dataIndex: 'Amount'}
 				]
-				
 			})
 		];
 		store.load();
