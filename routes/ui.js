@@ -41,6 +41,7 @@ var sampledata= function(req, res, next) {
 				output.data.push(dataLine);
 			}
 			output.total = output.data.length;
+			output.success=true;
 		}
 		return res.json(200,output);
 	});
