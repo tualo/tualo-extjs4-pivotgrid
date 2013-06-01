@@ -230,19 +230,132 @@ Ext.define('Ext.tualo.PivotGrid', {
 	onStoreLoad: function(){
 		this.onAxisChanged();
 	},
+	
+	
 	onAxisChanged: function(force,myMask){
+		this.configureColumns();
+		this.configureRows();
+	},
+	
+	configureColumns: function(force,myMask){
 		if ((typeof force!=='undefined')&&(force===true)){
 			var columns =  Ext.JSON.decode(Ext.JSON.encode(this.getColumns()).replace(/"dataIndex"/g,'"_dataIndex"').replace(/"value"/g,'"dataIndex"')) ;
+			
 			this.reconfigureColumns(columns);
 			if (typeof myMask!=='undefined'){myMask.hide();}
 		}else{
 			myMask = new Ext.LoadMask(this.grid, {msg: this.waitText});
 			myMask.show();
-			Ext.defer(this.onAxisChanged,10,this,[true,myMask]); // force Loading, delayed (the UI does not hang)
+			Ext.defer(this.configureColumns,10,this,[true,myMask]); // force Loading, delayed (the UI does not hang)
 		}
 	},
 	
-	
+	configureRows: function(force,myMask){
+		if ((typeof force!=='undefined')&&(force===true)){
+			var rows = this.getRows();// Ext.JSON.decode(Ext.JSON.encode().replace(/"dataIndex"/g,'"_dataIndex"').replace(/"value"/g,'"dataIndex"')) ;
+			
+			var cnf = this._baseFields; // tricky from getColumns
+			var fields = [];
+			
+			var leftAxisRange = (this.leftAxis.getRange());
+			for (var lIndex in leftAxisRange){
+				var val = leftAxisRange[lIndex].get('text');
+				var dIndex = leftAxisRange[lIndex].get('dataIndex');
+				fields.push({
+					//text: val,
+					name: dIndex,
+					type: 'string'
+					//_dataIndex: dIndex
+				});
+			}
+			
+			for(var i=0;i<cnf.length;i++){
+				if (typeof cnf[i].fromLeftAxis==='undefined'){
+					fields.push({
+						//text: cnf[i].text,
+						name: cnf[i].text,
+						type: 'number'
+						//_dataIndex: cnf[i].dataIndex
+					});
+				}
+			}
+			
+			var model = Ext.id();
+			Ext.define(model, {
+				extend: 'Ext.data.Model',
+				fields: fields
+			});
+			
+			var storeData=this.getRowList(rows);
+			console.log(storeData);
+			// step down the rows,
+			/*
+			for(var i=0;i<rows.length;i++){
+				var items = this.getRowItems(rows[i],{});
+				//item[rows[i].dataIndex] = rows[i].text;
+				console.log(items);
+				
+				storeData.concat(items);
+			};
+			*/
+			
+			var store = Ext.create('Ext.data.Store',{
+				model: model,
+				data: storeData
+			});
+			//console.log(fields);
+			//console.log(rows);
+			//console.log(storeData);
+			
+			this.reconfigureStore(store);
+			
+			
+			
+			if (typeof myMask!=='undefined'){myMask.hide();}
+		}else{
+			myMask = new Ext.LoadMask(this.grid, {msg: this.waitText});
+			myMask.show();
+			Ext.defer(this.configureRows,10,this,[true,myMask]); // force Loading, delayed (the UI does not hang)
+		}
+	},
+	getRowList: function(rows){
+		var elements = [];
+		for(var i in rows){
+			var row = rows[i];
+			if (row.rows){
+				var subrows = this.getRowList(row.rows);
+				for(var s in subrows){
+					var subrow = subrows[s];
+					var element = {};
+					element[row.dataIndex]=row.text;
+					elements.push(Ext.Object.merge(element,subrow));
+				}
+			}else{
+				var element = {};
+				element[row.dataIndex]=row.text;
+				elements.push(element);
+			}
+		}
+		return elements;
+	},
+	getRows: function(index,filter){
+		if (typeof index==='undefined') {index=0;}
+		if (typeof filter==='undefined') {filter=[];}
+		var rows = [];
+		var axisRange = (this.leftAxis.getRange());
+		if (axisRange.length>index){
+			rows = rows.concat(this.getDistinct(axisRange[index].get('dataIndex'),filter));
+			for(var i in rows){
+				var subRows = this.getRows(index+1,filter.concat(rows[i]));
+				if (subRows.length>0){
+					rows[i].rows = subRows;
+				}else{
+					
+				}
+			}
+		}
+		return rows;
+	},
 	getColumns: function(index,filter){
 		if (typeof index==='undefined') {index=0;}
 		if (typeof filter==='undefined') {filter=[];}
@@ -273,6 +386,9 @@ Ext.define('Ext.tualo.PivotGrid', {
 					
 				}
 			}
+		}
+		if (axisRange.length==index+1){
+			this._baseFields = columns; // little helper, thats the field config
 		}
 		return columns;
 	},
