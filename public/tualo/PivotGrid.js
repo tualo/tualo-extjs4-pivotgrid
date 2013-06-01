@@ -6,6 +6,8 @@ Ext.define('Ext.tualo.PivotGrid', {
 	columnsText: 'Columns',
 	rowsText: 'Rows',
 	valuesText: 'Values',
+	waitText: 'Please wait ...',
+	
 	showAxisConfiguration: true,
 	
 	requires: [
@@ -125,9 +127,6 @@ Ext.define('Ext.tualo.PivotGrid', {
 			model: this.xid+'-Columns',
 			data: this.availableData
 		});
-		console.log(this.availableData);
-		
-		
 		
 		this.topAxis = Ext.create('Ext.data.Store',{
 			model: this.xid+'-Columns',
@@ -223,10 +222,86 @@ Ext.define('Ext.tualo.PivotGrid', {
 			this.grid,
 			this.config
 		];
+		
+		this._store.on('load',this.onStoreLoad,this);
 		this.callParent(arguments);
+		
 	},
-	onAxisChanged: function(){
-		console.log('onAxisChanged');
+	onStoreLoad: function(){
+		this.onAxisChanged();
+	},
+	onAxisChanged: function(force,myMask){
+		if ((typeof force!=='undefined')&&(force===true)){
+			var columns =  Ext.JSON.decode(Ext.JSON.encode(this.getColumns()).replace(/"dataIndex"/g,'"_dataIndex"').replace(/"value"/g,'"dataIndex"')) ;
+			this.reconfigureColumns(columns);
+			if (typeof myMask!=='undefined'){myMask.hide();}
+		}else{
+			myMask = new Ext.LoadMask(this.grid, {msg: this.waitText});
+			myMask.show();
+			Ext.defer(this.onAxisChanged,10,this,[true,myMask]); // force Loading, delayed (the UI does not hang)
+		}
+	},
+	
+	
+	getColumns: function(index,filter){
+		if (typeof index==='undefined') {index=0;}
+		if (typeof filter==='undefined') {filter=[];}
+		
+		var columns = [];
+		if (index==0){
+			// adding left Axis first
+			var leftAxisRange = (this.leftAxis.getRange());
+			for (var lIndex in leftAxisRange){
+				var val = leftAxisRange[lIndex].get('text');
+				var dIndex = leftAxisRange[lIndex].get('dataIndex');
+				columns.push({
+					text: val,
+					value: val,
+					dataIndex: dIndex,
+					fromLeftAxis: true // helper for calculations
+				})
+			}
+		}
+		var axisRange = (this.topAxis.getRange());
+		if (axisRange.length>index){
+			columns = columns.concat(this.getDistinct(axisRange[index].get('dataIndex'),filter));
+			for(var i in columns){
+				var subColumns = this.getColumns(index+1,filter.concat(columns[i]));
+				if (subColumns.length>0){
+					columns[i].columns = subColumns;
+				}else{
+					
+				}
+			}
+		}
+		return columns;
+	},
+	// return an array of distinct values , that matches the filters
+	getDistinct: function(dataIndex,filter){
+		var range = this._store.getRange();
+		if (typeof filter==='undefined') {filter=[];}
+		var distinct = {};
+		for(var i =0; i<range.length;i++){
+			var add=true;
+			for(var h in filter){
+				if (range[i].get(filter[h].dataIndex)!==filter[h].value){
+					add=false;
+				}
+			}
+			if (add){
+				distinct[range[i].get(dataIndex)]=true;
+			}
+		}
+		var result = [];
+		for(var i in distinct){
+			var p = {
+				text: i,
+				dataIndex: dataIndex, // store the orig.
+				value: i // helper for the filter
+			}
+			result.push(p);
+		}
+		return result.sort(function(a,b){return (a.text<b.text)?-1:((a.text==b.text)?0:1)});
 	},
 	
 	reconfigureColumns: function (columns) {
