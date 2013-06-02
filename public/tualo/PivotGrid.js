@@ -285,12 +285,12 @@ Ext.define('Ext.tualo.PivotGrid', {
 			var storeData=this.getRowList(rows);
 			var store = Ext.create('Ext.data.Store',{
 				model: model,
-				data: storeData
+				data: this.populate(this.getMatrixIndex(storeData),storeData)
 			});
 			this.reconfigureStore(store);
 			if (typeof myMask!=='undefined'){myMask.hide();}
 			
-			this.getMatrixIndex(storeData);
+			
 			
 		}else{
 			myMask = new Ext.LoadMask(this.grid, {msg: this.waitText});
@@ -298,6 +298,34 @@ Ext.define('Ext.tualo.PivotGrid', {
 			Ext.defer(this.configureRows,10,this,[true,myMask]); // force Loading, delayed (the UI does not hang)
 		}
 	},
+	populate: function(qIndex,data){
+		var store = this._store;
+		var range = store.getRange();
+		
+		var left = this.leftAxis.getRange();
+		var top = this.topAxis.getRange();
+		
+		for(var r=0,m = range.length;r<m;r++){
+			var record = range[r];
+			var index = {};
+			for(var l in left){
+				index[left[l].get('dataIndex')] = record.get(left[l].get('dataIndex'));
+			}
+			for(var t in top){
+				index[top[l].get('dataIndex')] = record.get(top[l].get('dataIndex'));
+			}
+			var id = Ext.JSON.encode(index);
+			if (typeof qIndex[id]!='undefined'){
+				var qItem = qIndex[id];
+				if (typeof data[qItem.row][qItem.index]==='undefined'){data[qItem.row][qItem.index]=0;}
+				data[qItem.row][qItem.index]+=record.get('Amount')*1;
+			}else{
+				console.log('ID not found');
+			}
+		}
+		return data;
+	},
+	
 	// create the index, by left and top axis
 	getMatrixIndex: function(rows){
 		if (typeof rows==='undefined') {rows = this.getRowList(this.getRows(0,[]));}
@@ -308,9 +336,14 @@ Ext.define('Ext.tualo.PivotGrid', {
 			for(var colIndex in columns){
 				var filterObj = Ext.Object.merge(item,columns[colIndex]);
 				var id = Ext.JSON.encode(filterObj);
+				var ix = '';
+				for(var i in columns[colIndex]){
+					ix=columns[colIndex][i];
+				}
 				fields[id]={
 					col: colIndex,
-					row: rowIndex
+					row: rowIndex,
+					index: ix
 				};
 			}
 		} 
