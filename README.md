@@ -1,14 +1,13 @@
 Description
 ===========
 
-tualo-webmail is a web IMAP client. Actualy the server is in development and may not work like expected.
+tualo-extjs4-pivotgrid is a testing websever for a pivot grid written for Ext JS 4.x (the source is included).
 
 
 Requirements
 ============
 
-* [node.js](http://nodejs.org/) -- v0.8.0 or newer
-* An IMAP Account
+* [node.js](http://nodejs.org/) -- v0.8.0 or newer, for testing only
 
 
 Installation
@@ -16,26 +15,16 @@ Installation
 
 If you have installed git:
 
-	git clone git://github.com/tualo/tualo-webmail.git
-	cd tualo-webmail
+	git clone git://github.com/tualo/tualo-extjs4-pivotgrid.git
+	cd tualo-extjs4-pivotgrid
 	npm update 
 
 If you done have installed git:
 
-	wget https://github.com/tualo/tualo-webmail/archive/master.zip
+	wget https://github.com/tualo/tualo-extjs4-pivotgrid/archive/master.zip
 	unzip master.zip
-	cd tualo-webmail-master
+	cd tualo-extjs4-pivotgrid-master
 	npm update
-
-Configuration
-=============
-
-Before you run the server the first time, you must configure it. You can configure them by editing the config/server.js file.
-
-	nano config/server.js
-
-If you start the server the first time, the first user login will create the an administrator account. With that account you 
-can create the other users.
 
 How to run
 ============
