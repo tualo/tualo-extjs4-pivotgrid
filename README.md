@@ -2,7 +2,7 @@ Description
 ===========
 
 tualo-extjs4-pivotgrid is a testing websever for a pivot grid written for Ext JS 4.x (the source is included).
-
+The component is still in developemnt and may not work like expected.
 
 Requirements
 ============
