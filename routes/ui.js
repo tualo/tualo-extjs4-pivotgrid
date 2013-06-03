@@ -39,9 +39,11 @@ var sampledata= function(req, res, next) {
 					dataLine[map[c]] = columns[c].replace(',','.');
 				}
 				output.data.push(dataLine);
+				//if (i>10) break;
 			}
 			output.total = output.data.length;
 			output.success=true;
+			
 		}
 		return res.json(200,output);
 	});
