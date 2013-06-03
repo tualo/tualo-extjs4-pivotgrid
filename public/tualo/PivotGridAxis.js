@@ -17,13 +17,21 @@ Ext.define('Ext.tualo.PivotGridAxis', {
 			}, 
 			listeners: {
 				scope: this,
+				beforedrop: this.onBeforeDrop,
 				drop: this.onDropped
 			}
 		}
 		this.callParent(arguments);
 	},
+	onBeforeDrop: function(node, data, overModel, dropPosition, dropHandlers, eOpts){
+		return this.fireEvent('beforedrop',[node, data, overModel, dropPosition, dropHandlers, eOpts]);
+	},
 	onDropped: function(node, data, dropRec, dropPosition) {
 		//var dropOn = dropRec ? ' ' + dropPosition + ' ' + dropRec.get('name') : ' on empty view';
-		this.fireEvent('changed',[this]);
+		if (this.fireEvent('drop',[node, data, dropRec, dropPosition])){
+			return this.fireEvent('changed',[this]);
+		}else{
+			return false;
+		}
 	}
 });
