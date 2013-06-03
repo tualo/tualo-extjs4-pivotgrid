@@ -52,13 +52,14 @@ Ext.define('Ext.testing.components.Main', {
 					{text:'CustomerNo',dataIndex:'CustomerNo.'},
 					{text:'Article',dataIndex:'Article'},
 					
-					{text:'UnitPrice',dataIndex:'Unit Price',type:'number',align:'right',renderer: Ext.util.Format.numberRenderer('0.000,00/i') },
-					{text:'Quantity',dataIndex:'Quantity',type:'number',align:'right',renderer: Ext.util.Format.numberRenderer('0.000,00/i') },
-					{text:'Amount',dataIndex:'Amount',type:'number',align:'right',renderer: Ext.util.Format.numberRenderer('0.000,00/i') }
+					{text:'UnitPrice',dataIndex:'Unit Price',type:'number',align:'right',renderer: Ext.util.Format.numberRenderer('0,000.00/i') },
+					{text:'Quantity',dataIndex:'Quantity',type:'number',align:'right',renderer: Ext.util.Format.numberRenderer('0,000.00/i') },
+					{text:'Amount',dataIndex:'Amount',type:'number',align:'right',renderer: Ext.util.Format.numberRenderer('0,000.00/i') }
 					
 				],
 				topAxis: [
-					{dataIndex: 'Articlegroup'}
+					{dataIndex: 'Articlegroup'},
+					{dataIndex: 'Article'}
 				],
 				leftAxis: [
 					{dataIndex: 'Town'}
