@@ -7,7 +7,7 @@ Ext.define('Ext.tualo.PivotGrid', {
 	rowsText: 'Rows',
 	valuesText: 'Values',
 	waitText: 'Please wait ...',
-	
+	sequencePageSize: 1000,
 	showAxisConfiguration: true,
 	
 	requires: [
@@ -296,48 +296,12 @@ Ext.define('Ext.tualo.PivotGrid', {
 						
 			var rows = this.getRows();// Ext.JSON.decode(Ext.JSON.encode().replace(/"dataIndex"/g,'"_dataIndex"').replace(/"value"/g,'"dataIndex"')) ;
 			
-			var cnf = this._baseFields; // tricky from getColumns
-			var fields = [];
 			
-			var leftAxisRange = (this.leftAxis.getRange());
-			for (var lIndex in leftAxisRange){
-				var val = leftAxisRange[lIndex].get('text');
-				var dIndex = leftAxisRange[lIndex].get('dataIndex');
-				fields.push({
-					name: this.getDataIndex(dIndex),
-					type: 'string'
-				});
-			}
-			
-			for(var i=0;i<cnf.length;i++){
-				if (typeof cnf[i].fromLeftAxis==='undefined'){
-					fields.push({
-						name: cnf[i].value,
-						type: 'number' // must be the type or the Value-Field!
-					});
-				}
-			}
-			
-			
-			var model = Ext.id();
-			console.log("Fields");
-			console.log(fields);
-			Ext.define(model, {
-				extend: 'Ext.data.Model',
-				fields: fields
-			});
 			
 			var storeData=this.getRowList(rows);
 			this.getMatrixIndex(storeData);
-			var pdata = this.populate(storeData);
+			storeData = this.populate(storeData,myMask,0);
 
-			var store = Ext.create('Ext.data.Store',{
-				model: model,
-				data: pdata
-			});
-			this.reconfigureStore(store);
-			
-			if (typeof myMask!=='undefined'){myMask.hide();}
 			
 			
 			
@@ -347,10 +311,53 @@ Ext.define('Ext.tualo.PivotGrid', {
 			Ext.defer(this.configureRows,10,this,[true,myMask]); // force Loading, delayed (the UI does not hang)
 		}
 	},
-	populate: function(data){
+	onPopulate: function(data,myMask){
+		
+		var cnf = this._baseFields; // tricky from getColumns
+		var fields = [];
+		
+		var leftAxisRange = (this.leftAxis.getRange());
+		for (var lIndex in leftAxisRange){
+			var val = leftAxisRange[lIndex].get('text');
+			var dIndex = leftAxisRange[lIndex].get('dataIndex');
+			fields.push({
+				name: this.getDataIndex(dIndex),
+				type: 'string'
+			});
+		}
+		
+		for(var i=0;i<cnf.length;i++){
+			if (typeof cnf[i].fromLeftAxis==='undefined'){
+				fields.push({
+					name: cnf[i].value,
+					type: 'number' // must be the type or the Value-Field!
+				});
+			}
+		}
+		
+		
+		var model = Ext.id();
+		/*
+			console.log("Fields");
+			console.log(fields);
+			*/
+		Ext.define(model, {
+			extend: 'Ext.data.Model',
+			fields: fields
+		});
+		
+		var store = Ext.create('Ext.data.Store',{
+			model: model,
+			data: data
+		});
+		this.reconfigureStore(store);
+		
+		if (typeof myMask!=='undefined'){myMask.hide();}
+			
+	},
+	populate: function(data,myMask,rangeIndex){
 		var store = this._store;
 		var range = store.getRange();
-		
 		var left = this.leftAxis.getRange();
 		var top = this.topAxis.getRange();
 		var values = this.values.getRange();
@@ -369,39 +376,46 @@ Ext.define('Ext.tualo.PivotGrid', {
 		*/
 		if (values.length>0){
 			var valueIndex = values[0].get('dataIndex');
-			for(var r=0,m = range.length;r<m;r++){
-				
-				var record = range[r];
-				var ids = [];
-				for(var i in columns[0]){
-					ids.push(record.get(i));
+			if (rangeIndex<range.length){
+				var sequenceCounter = 0;
+				for(var r=rangeIndex,m = range.length;(r<m)&&(sequenceCounter<this.sequencePageSize);r++){
+					sequenceCounter++;
+					var record = range[r];
+					var ids = [];
+					for(var i in columns[0]){
+						ids.push(record.get(i));
+					}
+					var columnID = Ext.JSON.encode(ids);
+					var columnDataIndex =  this.valueColumnMap[this.colHash[columnID]];//this._baseFields[columnID].value;
+					
+					var rowIds = [];
+					for(var i in left){
+						rowIds.push(record.get(left[i].get('dataIndex')));
+					}
+					var rowID = Ext.JSON.encode(rowIds);
+					var rowNumber = this.rowHash[rowID];
+					/*
+					console.log(
+						[
+							record.get('Town'),
+							record.get('Articlegroup'),
+							record.get('Amount'),
+							"RowNr.: "+rowNumber,
+							"ColID: "+columnDataIndex
+						].join("\t")
+					);
+					*/
+					if (typeof data[rowNumber][columnDataIndex]==='undefined'){data[rowNumber][columnDataIndex]=0;}
+					data[rowNumber][columnDataIndex]+=record.get(valueIndex)*1;
+					rangeIndex++;
 				}
-				var columnID = Ext.JSON.encode(ids);
-				var columnDataIndex =  this.valueColumnMap[this.colHash[columnID]];//this._baseFields[columnID].value;
 				
-				var rowIds = [];
-				for(var i in left){
-					rowIds.push(record.get(left[i].get('dataIndex')));
-				}
-				var rowID = Ext.JSON.encode(rowIds);
-				var rowNumber = this.rowHash[rowID];
-				/*
-				console.log(
-					[
-						record.get('Town'),
-						record.get('Articlegroup'),
-						record.get('Amount'),
-						"RowNr.: "+rowNumber,
-						"ColID: "+columnDataIndex
-					].join("\t")
-				);
-				*/
-				if (typeof data[rowNumber][columnDataIndex]==='undefined'){data[rowNumber][columnDataIndex]=0;}
-				data[rowNumber][columnDataIndex]+=record.get(valueIndex)*1;
-				
+				Ext.defer(this.populate,10,this,[data,myMask,rangeIndex]); // force Loading, delayed (the UI does not hang)
+			}else{
+				this.onPopulate(data,myMask);
 			}
 		}
-		return data;
+		
 	},
 	initDataIndexHash: function(){
 		this.dataIndexHash = {};
