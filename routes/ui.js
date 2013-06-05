@@ -31,14 +31,21 @@ var sampledata= function(req, res, next) {
 			var headline = lines[0].split(";");
 			for(var i=0;i<headline.length;i++){
 				map.push(headline[i]);
+				
 			}
+			map.push('BDate');
 			for(var i=1;i<lines.length;i++){
 				var columns = lines[i].split(";");
 				var dataLine = {};
 				for(var c=0;c<columns.length;c++){
 					dataLine[map[c]] = columns[c].replace(',','.');
+					if (map[c]=='Date'){
+						dataLine['BDate'] = columns[c].substr(0,7);
+					}
 				}
-				output.data.push(dataLine);
+//				if (dataLine['Town']=='Berlin')//
+					//if (dataLine['BDate']=='2010-01')
+						output.data.push(dataLine);
 				//if (i>10) break;
 			}
 			output.total = output.data.length;
