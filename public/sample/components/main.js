@@ -31,6 +31,7 @@ Ext.define('Ext.testing.components.Main', {
 				{name:'CustomerName'},
 				{name:'CustomerNo'},
 				{name:'Article'},
+				{name:'BDate'},
 				{name:'Date',type:'date'},
 				{name:'UnitPrice',type:'number'},
 				{name:'Quantity',type:'number'},
@@ -45,6 +46,7 @@ Ext.define('Ext.testing.components.Main', {
 				title: 'SampleGrid',
 				store: store,
 				columns: [
+					{text:'BDate',dataIndex:'BDate'},
 					{text:'Date',dataIndex:'Date',type:'date'},
 					{text:'Town',dataIndex:'Town'},
 					{text:'Articlegroup',dataIndex:'Articlegroup'},
@@ -58,8 +60,8 @@ Ext.define('Ext.testing.components.Main', {
 					
 				],
 				topAxis: [
-					{dataIndex: 'Articlegroup'},
-					{dataIndex: 'Article'}
+					{dataIndex: 'BDate'},
+					{dataIndex: 'Articlegroup'}
 				],
 				leftAxis: [
 					{dataIndex: 'Town'}
