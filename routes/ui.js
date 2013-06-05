@@ -45,7 +45,9 @@ var sampledata= function(req, res, next) {
 				}
 //				if (dataLine['Town']=='Berlin')//
 					//if (dataLine['BDate']=='2010-01')
+				for(var x=0;x<10;x++){
 						output.data.push(dataLine);
+				}
 				//if (i>10) break;
 			}
 			output.total = output.data.length;
