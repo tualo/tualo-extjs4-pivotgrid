@@ -3,7 +3,7 @@ Description
 
 tualo-extjs4-pivotgrid is a testing websever for a pivot grid written for Ext JS 4.x.
 The source code of the pivot grid is included in the folder public/tualo/.
-The component is still in developemnt and may not work like expected.
+The component is still in development and may not work like expected.
 
 Requirements
 ============
