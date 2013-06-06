@@ -1,14 +1,105 @@
+/*
+Copyright (c) 2013 tualo solutions GmbH
+
+Contact:  http://www.tualo.de/
+
+GNU General Public License Usage
+This file may be used under the terms of the GNU General Public License version 3.0 as
+published by the Free Software Foundation and appearing in the file LICENSE included in the
+packaging of this file.
+
+Please review the following information to ensure the GNU General Public License version 3.0
+requirements will be met: http://www.gnu.org/copyleft/gpl.html.
+
+If you are unsure which license is appropriate for your use, please contact the sales department
+at http://www.tualo.de/.
+
+Build date: 2013-06-05
+*/
+/**
+ * @class Ext.tualo.PivotGrid
+ * @extends Ext.Panel
+ * <p>This class represents represent data in a tabular format of rows and columns. The data can be grouped in columns and rows.
+ * The PivotGrid is composed of the following:</p>
+ * <div class="mdetail-params"><ul>
+ * <li><b>{@link Ext.data.Store Store}</b> : The Model holding the data records (rows)
+ * <div class="sub-desc"></div></li>
+ * <li><b>{@link Ext.grid.ColumnModel Column model}</b> : Column makeup
+ * <div class="sub-desc"></div></li>
+ * <li><b>{@link Ext.grid.Panel Grid}</b> : Encapsulates the user interface
+ * <div class="sub-desc"></div></li>
+ * <li><b>{@link Ext.tualo.PivotGridAxis Axis}</b> : Axis grids
+ * <div class="sub-desc"></div></li>
+ * </ul></div>
+ * <p>Example usage:</p>
+ * <pre><code>
+var grid = new Ext.tualo.PivotGrid({
+		{@link #store}: new {@link Ext.data.Store}({
+			{@link Ext.data.Store#autoDestroy autoDestroy}: true,
+			{@link Ext.data.Store#reader reader}: reader,
+			{@link Ext.data.Store#data data}: []
+		}),
+		{@link #columns}: [
+			{header: 'company', width: 200, sortable: true, dataIndex: 'company'},
+			{header: 'bookingdate', renderer: Ext.util.Format.date('Y-m'), dataIndex: 'bookingdate'},
+			{header: 'category', dataIndex: 'category'},
+			{header: 'city', dataIndex: 'city'},
+			{header: 'amount', dataIndex: 'amount'}
+		],
+		topAxis: [
+			{dataIndex: 'bookingdate'},
+			{dataIndex: 'category'}
+		],
+		leftAxis: [
+			{dataIndex: 'city'}
+		],
+		values: [
+			{dataIndex: 'amount'}
+		],
+		width: 600,
+		height: 300,
+		frame: true,
+		title: 'Pivot Grid',
+		iconCls: 'icon-grid'
+});
+ * </code></pre>
+ * @constructor
+ * @param {Object} config The config object
+ * @xtype pivotgrid
+ */
 Ext.define('Ext.tualo.PivotGrid', {
 	extend: 'Ext.panel.Panel',
-	layout: 'border',
-	
+	/**
+	* @cfg {String} fieldText Title for the field configuration-gird.
+	*/
 	fieldText: 'Fields',
+	/**
+	* @cfg {String} columnsText Title for the column configuration-gird.
+	*/
 	columnsText: 'Columns',
+	/**
+	* @cfg {String} rowsText Title for the row configuration-gird.
+	*/
 	rowsText: 'Rows',
+	/**
+	* @cfg {String} valuesText Title for the values configuration-gird.
+	*/
 	valuesText: 'Values',
+	/**
+	* @cfg {String} waitText The text show in the loading mask.
+	*/
 	waitText: 'Please wait ...',
+	/**
+	* @cfg {Number} sequencePageSize The chunk size for calculating sequencly the pivot data.
+	*/
 	sequencePageSize: 1000,
+	/**
+	* @cfg {Boolean} showAxisConfiguration True if the axis configuration should be shown.
+	*/
 	showAxisConfiguration: true,
+	/**
+	* @cfg {String} axisConfigPosition show the axis configuration on the left 'west' or right 'east' (default) side.
+	*/
 	
 	requires: [
 		'Ext.grid.Panel',
@@ -20,7 +111,7 @@ Ext.define('Ext.tualo.PivotGrid', {
 	constructor: function(config) {
 		this._store = config.store; // for storing the original data, from the default grid configuration
 		this._columns = config.columns; // all columns, from the default grid configuration
-		
+		config.layout = 'border';
 		this.availableData = [];
 		this.leftAxisData = [];
 		this.topAxisData = [];
@@ -237,11 +328,13 @@ Ext.define('Ext.tualo.PivotGrid', {
 		
 	},
 	onStoreLoad: function(){
+		// to do load more pages if more data are available
 		this.onAxisChanged();
 	},
 	
 	
 	onAxisChanged: function(force,myMask){
+		// called if columns were dropped on the axis grids
 		var t = this.topAxis.getRange();
 		var l = this.leftAxis.getRange();
 		var v = this.values.getRange();
@@ -628,4 +721,5 @@ Ext.define('Ext.tualo.PivotGrid', {
 		}
 		me.getView().refresh();
 	}
+	
 });
