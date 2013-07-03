@@ -1,9 +1,9 @@
 {
 	"name": "tualo-extjs4-pivotgrid",
-	"description": "WebMail-App written in JavaScript ",
+	"description": "Pivotgrid written in JavaScript ",
 	"homepage": "http://www.tualo.de",
 	"main": "app.js",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"engines": {
 		"node": ">=0.8.0"
 	},
