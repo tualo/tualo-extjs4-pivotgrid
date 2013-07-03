@@ -210,7 +210,8 @@ Ext.define('Ext.tualo.PivotGrid', {
 			extend: 'Ext.data.Model',
 			fields: [
 				{name: 'text', type: 'string'},
-				{name: 'dataIndex', type: 'string'}
+				{name: 'dataIndex', type: 'string'},
+				{name: 'pivotFunction', type: 'string'}
 			 ]
 		});
 		
@@ -343,8 +344,14 @@ Ext.define('Ext.tualo.PivotGrid', {
 				if (v.length>0){
 					this.configureColumns();
 					this.configureRows();
+				}else{
+					if (typeof myMask!=='undefined'){try{myMask.hide();}catch(e){}}
 				}
+			}else{
+				if (typeof myMask!=='undefined'){try{myMask.hide();}catch(e){}}
 			}
+		}else{
+			if (typeof myMask!=='undefined'){try{myMask.hide();}catch(e){}}
 		}
 	},
 	
@@ -361,6 +368,7 @@ Ext.define('Ext.tualo.PivotGrid', {
 					}
 				}
 			}else{
+				delete columns[i].dataIndex; // older than ExtJS 4.2 don't allow the dataIndex in the header group
 				columns[i].columns = this.prepareColumnConfiguration(columns[i].columns,valuesList);
 			}
 		}
@@ -373,7 +381,6 @@ Ext.define('Ext.tualo.PivotGrid', {
 			this.initDataIndexHash();
 			var columns =  Ext.JSON.decode(Ext.JSON.encode(this.getColumns()).replace(/"dataIndex"/g,'"_dataIndex"').replace(/"value"/g,'"dataIndex"')) ;
 			columns = this.prepareColumnConfiguration(columns);
-
 			this.reconfigureColumns(columns);
 			if (typeof myMask!=='undefined'){myMask.hide();}
 		}else{
@@ -413,6 +420,7 @@ Ext.define('Ext.tualo.PivotGrid', {
 		for (var lIndex in leftAxisRange){
 			var val = leftAxisRange[lIndex].get('text');
 			var dIndex = leftAxisRange[lIndex].get('dataIndex');
+			
 			fields.push({
 				name: this.getDataIndex(dIndex),
 				type: 'string'
@@ -439,6 +447,7 @@ Ext.define('Ext.tualo.PivotGrid', {
 			fields: fields
 		});
 		
+		this._data = data;
 		var store = Ext.create('Ext.data.Store',{
 			model: model,
 			data: data
@@ -458,7 +467,8 @@ Ext.define('Ext.tualo.PivotGrid', {
 		var columns = this.getColumnList(this.getColumns(0,[],false));
 		var rows = this.getRowList(this.getRows(0,[]));
 		var columnsHelper = [];
-		if (columns.length==0){ return [];} // there is nothing to do
+		if (columns.length==0){ this.onPopulate([],myMask);} // there is nothing to do
+		//console.log(columns);
 		/*
 		console.log("Columns");
 		console.log(columns);
@@ -469,6 +479,10 @@ Ext.define('Ext.tualo.PivotGrid', {
 		*/
 		if (values.length>0){
 			var valueIndex = values[0].get('dataIndex');
+			var valueFunction = values[0].get('pivotFunction');
+			if (typeof valueFunction==='undefined'){
+				valueFunction='sum';
+			}
 			if (rangeIndex<range.length){
 				var sequenceCounter = 0;
 				for(var r=rangeIndex,m = range.length;(r<m)&&(sequenceCounter<this.sequencePageSize);r++){
@@ -499,7 +513,19 @@ Ext.define('Ext.tualo.PivotGrid', {
 					);
 					*/
 					if (typeof data[rowNumber][columnDataIndex]==='undefined'){data[rowNumber][columnDataIndex]=0;}
-					data[rowNumber][columnDataIndex]+=record.get(valueIndex)*1;
+					
+					//console.log(valueFunction);
+					switch(valueFunction){
+						case 'sum':
+							data[rowNumber][columnDataIndex]+=record.get(valueIndex)*1;
+							break;
+						case 'count':
+							//console.log('count');
+							data[rowNumber][columnDataIndex]+=1;
+							break;
+					}
+					
+					
 					rangeIndex++;
 				}
 				
@@ -641,7 +667,7 @@ Ext.define('Ext.tualo.PivotGrid', {
 					var dIndex = leftAxisRange[lIndex].get('dataIndex');
 					columns.push({
 						text: val,
-						value: this.getDataIndex(val),
+						value: this.getDataIndex(dIndex),
 						dataIndex: dIndex,
 						fromLeftAxis: true // helper for calculations
 					})
@@ -720,6 +746,10 @@ Ext.define('Ext.tualo.PivotGrid', {
          me.bindStore(store);
 		}
 		me.getView().refresh();
-	}
+	},
 	
+	getData: function(){
+	
+		return this._data
+	}
 });
